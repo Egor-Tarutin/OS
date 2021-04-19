@@ -13,8 +13,8 @@ void print_matrix(const Matrix& matrix, std::ostream& out) {
 
 int main() {
 
-    A = Matrix("/home/akim/Other/repos/OS-Labs/Lab5 (copy)/input.txt");
-    B = Matrix("/home/akim/Other/repos/OS-Labs/Lab5 (copy)/input.txt");
+    A = Matrix("input.txt");
+    B = Matrix("input.txt");
 
     int streams = 10;
 
