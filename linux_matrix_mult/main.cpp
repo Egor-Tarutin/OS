@@ -4,18 +4,17 @@
 #include "Multys.h"
 
 void print_matrix(const Matrix& matrix, std::ostream& out) {
-    for(int i = 0; i < matrix.matrix.size(); ++i) {
-        for(int j = 0; j < matrix.matrix[i].size(); ++j) {
-            out << matrix.matrix[i][j] << " ";
-        }
+    for(const auto & i : matrix.matrix) {
+        for(double j : i)
+            out << j << " ";
         out << '\n';
     }
 }
 
 int main() {
 
-    A = Matrix("simple_input.txt");
-    B = Matrix("simple_input.txt");
+    A = Matrix("/home/akim/Other/repos/OS-Labs/Lab5 (copy)/input.txt");
+    B = Matrix("/home/akim/Other/repos/OS-Labs/Lab5 (copy)/input.txt");
 
     int streams = 10;
 
@@ -39,7 +38,7 @@ int main() {
 
     std::cout << "Row by col multiplying:\n";
     {//===============================
-        HANDLE* handle = new HANDLE[streams];
+        auto* handle = new pthread_t[streams];
 
         auto begin = std::chrono::steady_clock::now();
 
@@ -61,17 +60,16 @@ int main() {
 
             inds[j] = new int[2]{tmp.first, tmp.second};
             if (count_of_threads < streams) {
-                handle[i] = CreateThread(nullptr, 0, &multy_row_by_col, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_create(&handle[i], nullptr, &multy_row_by_col, (void *)(inds[j]));
+                pthread_join(handle[i], nullptr);
                 ++count_of_threads;
             }
             else {
-                WaitForSingleObject(handle[0], INFINITE);
-                handle[0] = CreateThread(nullptr, 0, &multy_row_by_col, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_join(handle[0], nullptr);
+                pthread_create(&handle[0], nullptr, &multy_row_by_col, (void *)(inds[j]));
             }
 
         }
-
-        WaitForMultipleObjects(streams, handle, TRUE, INFINITE);
 
         auto end = std::chrono::steady_clock::now();
 
@@ -82,7 +80,7 @@ int main() {
 
     std::cout << "Col by row multiplying:\n";
     {
-        HANDLE* handle = new HANDLE[streams];
+        auto* handle = new pthread_t[streams];
 
         auto begin = std::chrono::steady_clock::now();
 
@@ -104,17 +102,16 @@ int main() {
 
             inds[j] = new int[2]{tmp.first, tmp.second};
             if (count_of_threads < streams) {
-                handle[i] = CreateThread(nullptr, 0, &multy_col_by_row, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_create(&handle[i], nullptr, &multy_col_by_row, (void *)(inds[j]));
+                pthread_join(handle[i], nullptr);
                 ++count_of_threads;
             }
             else {
-                WaitForSingleObject(handle[0], INFINITE);
-                handle[0] = CreateThread(nullptr, 0, &multy_col_by_row, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_create(&handle[0], nullptr, &multy_col_by_row, (void *)(inds[j]));
+                pthread_join(handle[0], nullptr);
             }
 
         }
-
-        WaitForMultipleObjects(streams, handle, TRUE, INFINITE);
 
         auto end = std::chrono::steady_clock::now();
 
@@ -133,7 +130,7 @@ int main() {
         for(int i = 0; i < streams; ++i)
             lockers[i] = new std::mutex[streams];
 
-        HANDLE* handle = new HANDLE[streams];
+        auto* handle = new pthread_t[streams];
 
         auto begin = std::chrono::steady_clock::now();
 
@@ -156,17 +153,16 @@ int main() {
 
             inds[j] = new int[2]{tmp.first, tmp.second};
             if (count_of_threads < streams) {
-                handle[i] = CreateThread(nullptr, 0, &multy_blocks, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_create(&handle[i], nullptr, &multy_blocks, (void *)(inds[j]));
+                pthread_join(handle[i], nullptr);
                 ++count_of_threads;
             }
             else {
-                WaitForSingleObject(handle[0], INFINITE);
-                handle[0] = CreateThread(nullptr, 0, &multy_blocks, static_cast<void*>(inds[j]), 0, nullptr);
+                pthread_create(&handle[0], nullptr, &multy_blocks, (void *)(inds[j]));
+                pthread_join(handle[0], nullptr);
             }
 
         }
-
-        WaitForMultipleObjects(streams, handle, TRUE, INFINITE);
 
         auto end = std::chrono::steady_clock::now();
 

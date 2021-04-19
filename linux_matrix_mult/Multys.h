@@ -2,7 +2,7 @@
 #define MULTY_MATRIX_MULTYS_H
 
 #include "matrix.h"
-#include <windows.h>
+#include <pthread.h>
 #include <vector>
 #include <mutex>
 
@@ -10,7 +10,7 @@ Matrix A, B, C;
 std::vector< std::vector<Matrix> > A_by_blocks;
 std::vector< std::vector<Matrix> > B_by_blocks;
 
-DWORD WINAPI multy_row_by_col(CONST LPVOID lpParam) {
+void* multy_row_by_col(void* lpParam) {
 
     int* row_and_col = (int*)lpParam;
     int row = row_and_col[0];
@@ -21,12 +21,12 @@ DWORD WINAPI multy_row_by_col(CONST LPVOID lpParam) {
         sum += A.matrix[row][i] * B.matrix[i][col];
     C.matrix[row][col] = sum;
 
-    ExitThread(0);
+    return nullptr;
 
 }
 
 std::mutex locker;
-DWORD WINAPI multy_col_by_row(CONST LPVOID lpParam) {
+void* multy_col_by_row(void* lpParam) {
 
     int* col_and_row = (int*)lpParam;
     int col = col_and_row[0];
@@ -45,12 +45,12 @@ DWORD WINAPI multy_col_by_row(CONST LPVOID lpParam) {
     }
     locker.unlock();
 
-    ExitThread(0);
+    return nullptr;
 
 }
 
 std::mutex** lockers;
-DWORD WINAPI multy_blocks(CONST LPVOID lpParam) {
+void* multy_blocks(void* lpParam) {
 
     int* row_and_col = (int*)lpParam;
     int row = row_and_col[0];
@@ -76,7 +76,7 @@ DWORD WINAPI multy_blocks(CONST LPVOID lpParam) {
     }
     lockers[row][col].unlock();
 
-    ExitThread(0);
+    return nullptr;
 
 }
 
